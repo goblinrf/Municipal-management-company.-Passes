@@ -1,0 +1,76 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: you
+      changes:
+        - createTable:
+            tableName: address
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: street
+                  type: VARCHAR(255)
+              - column:
+                  name: entrance
+                  type: VARCHAR(255)
+
+  - changeSet:
+      id: 2
+      author: you
+      changes:
+        - createTable:
+            tableName: pass
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: address_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_pass_address
+                    referencedTableName: address
+                    referencedColumnNames: id
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: code
+                  type: BIGINT
+              - column:
+                  name: limitation
+                  type: TIMESTAMP
+              - column:
+                  name: pass_type
+                  type: VARCHAR(255)
+              - column:
+                  name: kind_pass_type
+                  type: VARCHAR(255)
+
+  - changeSet:
+      id: 3
+      author: you
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: password
+                  type: VARCHAR(255)
