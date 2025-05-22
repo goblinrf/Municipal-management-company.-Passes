@@ -5,12 +5,14 @@ import company.server.db.jpaRepository.UsersRepository;
 import company.server.model.UsersDto;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -22,8 +24,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UsersDto userDto, HttpSession session) {
         Optional<Users> user = userRepository.findByName(userDto.username());
-
-        if (user == null || !passwordEncoder.matches(userDto.rawPassword(), user.get().getPassword())) {
+        System.out.println(userDto.rawPassword()+userDto.username());
+        if (user.isEmpty() || !passwordEncoder.matches(userDto.rawPassword(), user.get().getPassword())) {
             return ResponseEntity.status(401).body("Неверный логин или пароль");
         }
 
@@ -46,6 +48,4 @@ public class AuthController {
         return ResponseEntity.ok(username);
     }
 
-    // DTO-класс
-    public record LoginRequest(String username, String password) {}
 }

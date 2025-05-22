@@ -18,6 +18,7 @@
     <modules>
         <module>server</module>
         <module>web</module>
+        <module>desktop</module>
     </modules>
 
     <properties>

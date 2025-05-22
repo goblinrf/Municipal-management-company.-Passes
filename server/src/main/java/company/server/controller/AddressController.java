@@ -25,6 +25,9 @@ public class AddressController {
         return addressFacade.getAll();
     }
 
+    @GetMapping("/{id}")
+    public Optional<Address> getAddressById(@PathVariable Long id) {return addressFacade.findById(id);}
+
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody AddressDto addressDto) {
         Optional<Address> optionalAddress = addressFacade.findById(id);

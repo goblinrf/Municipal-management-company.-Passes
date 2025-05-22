@@ -14,7 +14,7 @@
         <button id="logoutBtn" class="btn btn-outline-danger">Выйти</button>
     </div>
 
-    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+    <button class="btn btn-primary mb-3" onclick="openCreateModal()" data-bs-toggle="modal" data-bs-target="#addressModal">
         Добавить адрес
     </button>
 
@@ -27,26 +27,27 @@
             <th>Действия</th>
         </tr>
         </thead>
-        <tbody id="addressTableBody"></tbody>
+        <tbody id="addressList"></tbody>
     </table>
 </div>
 
-<!-- Модалка: Добавить -->
-<div class="modal fade" id="addAddressModal" tabindex="-1">
+<!-- Модальное окно для добавления и редактирования -->
+<div class="modal fade" id="addressModal" tabindex="-1">
     <div class="modal-dialog">
-        <form id="addAddressForm" class="modal-content">
+        <form id="addressForm" class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Добавить адрес</h5>
+                <h5 id="modalTitle" class="modal-title">Добавить адрес</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <input type="hidden" id="addressId">
                 <div class="mb-3">
                     <label class="form-label">Улица</label>
-                    <input type="text" class="form-control" name="street" required>
+                    <input type="text" id="street" class="form-control" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Подъезд</label>
-                    <input type="text" class="form-control" name="entrance" required>
+                    <input type="number" id="entrance" class="form-control" required>
                 </div>
             </div>
             <div class="modal-footer">
@@ -56,146 +57,13 @@
     </div>
 </div>
 
-<!-- Модалка: Редактировать -->
-<div class="modal fade" id="editAddressModal" tabindex="-1">
-    <div class="modal-dialog">
-        <form id="editAddressForm" class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Редактировать адрес</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" name="id">
-                <div class="mb-3">
-                    <label class="form-label">Улица</label>
-                    <input type="text" class="form-control" name="street" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Подъезд</label>
-                    <input type="text" class="form-control" name="entrance" required>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-success">Сохранить изменения</button>
-            </div>
-        </form>
-    </div>
-</div>
-
+<!-- Скрипты -->
 <script type="module">
-    const addressTableBody = document.getElementById("addressTableBody");
+    import { AddressPage } from './js/address-page.js';
+    import { ListPage } from './js/list-page.js';
 
-    async function fetchAddresses() {
-        try {
-            const res = await fetch("http://localhost:8081/api/addresses", {
-                credentials: 'include'
-            });
-
-            if (res.status === 401 || res.status === 403) {
-                window.location.href = "/login.html";
-                return;
-            }
-
-            if (!res.ok) {
-                console.error("Ошибка при загрузке адресов:", res.status);
-                return;
-            }
-
-            const data = await res.json();
-            renderTable(data);
-        } catch (e) {
-            console.error("Ошибка при fetchAddresses:", e);
-        }
-    }
-
-    function renderTable(addresses) {
-        addressTableBody.innerHTML = "";
-        addresses.forEach(addr => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${addr.id}</td>
-                <td>${addr.street}</td>
-                <td>${addr.entrance}</td>
-                <td>
-                    <button class="btn btn-sm btn-outline-secondary me-2" onclick="openEditModal(${addr.id}, '${addr.street}', '${addr.entrance}')">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="deleteAddress(${addr.id})">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </td>
-            `;
-            addressTableBody.appendChild(tr);
-        });
-    }
-
-    window.openEditModal = function(id, street, entrance) {
-        const form = document.getElementById("editAddressForm");
-        form.id.value = id;
-        form.street.value = street;
-        form.entrance.value = entrance;
-        new bootstrap.Modal(document.getElementById("editAddressModal")).show();
-    }
-
-    document.getElementById("addAddressForm").onsubmit = async function (e) {
-        e.preventDefault();
-        const body = {
-            street: this.street.value,
-            entrance: this.entrance.value
-        };
-        const res = await fetch("http://localhost:8081/api/addresses", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: 'include',
-            body: JSON.stringify(body)
-        });
-
-        if (res.status === 401 || res.status === 403) {
-            window.location.href = "/login.html";
-            return;
-        }
-
-        bootstrap.Modal.getInstance(document.getElementById("addAddressModal")).hide();
-        this.reset();
-        fetchAddresses();
-    };
-
-    document.getElementById("editAddressForm").onsubmit = async function (e) {
-        e.preventDefault();
-        const id = this.id.value;
-        const body = {
-            street: this.street.value,
-            entrance: this.entrance.value
-        };
-        const res = await fetch(`http://localhost:8081/api/addresses/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            credentials: 'include',
-            body: JSON.stringify(body)
-        });
-
-        if (res.status === 401 || res.status === 403) {
-            window.location.href = "/login.html";
-            return;
-        }
-
-        bootstrap.Modal.getInstance(document.getElementById("editAddressModal")).hide();
-        fetchAddresses();
-    };
-
-    window.deleteAddress = async function(id) {
-        const res = await fetch(`http://localhost:8081/api/addresses/${id}`, {
-            method: "DELETE",
-            credentials: 'include'
-        });
-
-        if (res.status === 401 || res.status === 403) {
-            window.location.href = "/login.html";
-            return;
-        }
-
-        fetchAddresses();
-    };
+    const listPage = new ListPage("addressList");
+    const page = new AddressPage(listPage);
 
     document.getElementById("logoutBtn").onclick = async () => {
         await fetch("http://localhost:8081/logout", {
@@ -205,7 +73,15 @@
         window.location.href = "/login.html";
     };
 
-    fetchAddresses();
+    try {
+        await page.showAll();
+    } catch (e) {
+        if (e instanceof Response && (e.status === 401 || e.status === 403)) {
+            window.location.href = "/login.html";
+        } else {
+            console.error("Ошибка при загрузке адресов:", e);
+        }
+    }
 </script>
 </body>
 </html>
