@@ -9,7 +9,7 @@ public class LoginFrame extends JFrame {
     public LoginFrame() {
         super("Авторизация");
 
-        LoginPanel panel = new LoginPanel();
+        LoginPanel panel = new LoginPanel(this);
         this.add(panel);
 
         this.setSize(400, 250);

@@ -11,7 +11,7 @@ public class LoginPanel extends JPanel {
     private final JButton loginButton = new JButton("Войти");
     private final JLabel statusLabel = new JLabel(" ");
 
-    public LoginPanel() {
+    public LoginPanel(JFrame parentFrame) {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
@@ -36,7 +36,7 @@ public class LoginPanel extends JPanel {
         statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(statusLabel, gbc);
 
-        LoginController controller = new LoginController(usernameField, passwordField, statusLabel);
+        LoginController controller = new LoginController(usernameField, passwordField, statusLabel, parentFrame);
         loginButton.addActionListener(controller);
     }
 }
