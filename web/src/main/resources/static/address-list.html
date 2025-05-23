@@ -14,9 +14,14 @@
         <button id="logoutBtn" class="btn btn-outline-danger">Выйти</button>
     </div>
 
-    <button class="btn btn-primary mb-3" onclick="openCreateModal()" data-bs-toggle="modal" data-bs-target="#addressModal">
-        Добавить адрес
-    </button>
+    <div class="mb-3 d-flex gap-2">
+        <button class="btn btn-primary" onclick="openCreateModal()" data-bs-toggle="modal" data-bs-target="#addressModal">
+            Добавить адрес
+        </button>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createPassModal" onclick="loadAddressesToSelect()">
+            Создать пропуск
+        </button>
+    </div>
 
     <table class="table table-bordered table-striped">
         <thead class="table-dark">
@@ -31,7 +36,7 @@
     </table>
 </div>
 
-<!-- Модальное окно для добавления и редактирования -->
+<!-- Модальное окно для добавления и редактирования адреса -->
 <div class="modal fade" id="addressModal" tabindex="-1">
     <div class="modal-dialog">
         <form id="addressForm" class="modal-content">
@@ -57,7 +62,55 @@
     </div>
 </div>
 
-<!-- Скрипты -->
+<!-- Модальное окно: Создать пропуск -->
+<div class="modal fade" id="createPassModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form id="createPassForm" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Создать пропуск</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Название</label>
+                    <input type="text" class="form-control" name="name" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Тип</label>
+                    <select class="form-select" name="passType" required>
+                        <option value="PASSWORD">PASSWORD</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Действителен до</label>
+                    <input type="datetime-local" class="form-control" name="limitation" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Вид</label>
+                    <select class="form-select" name="kindPassType" required>
+                        <option value="TEMPORARY">TEMPORARY</option>
+                        <option value="ONE_TIME">ONE_TIME</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Адрес</label>
+                    <select class="form-select" name="addressId" required id="addressSelect"></select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Код</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="code" id="codeField" readonly>
+                        <button type="button" class="btn btn-outline-secondary" onclick="generateCode()">Сгенерировать</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script type="module">
     import { AddressPage } from './js/address-page.js';
     import { ListPage } from './js/list-page.js';
@@ -82,6 +135,66 @@
             console.error("Ошибка при загрузке адресов:", e);
         }
     }
+
+    window.generateCode = () => {
+        const code = Math.floor(100000 + Math.random() * 900000);// максимально близко к Long
+        document.getElementById("codeField").value = code;
+    };
+
+    window.loadAddressesToSelect = async () => {
+        const res = await fetch("http://localhost:8081/api/addresses", {
+            credentials: "include"
+        });
+        const addresses = await res.json();
+        const select = document.getElementById("addressSelect");
+        select.innerHTML = "";
+        for (const addr of addresses) {
+            const option = document.createElement("option");
+            option.value = addr.id;
+            option.textContent = `${addr.street}, подъезд ${addr.entrance}`;
+            select.appendChild(option);
+        }
+    };
+
+    document.getElementById("createPassForm").onsubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+
+        const rawLimitation = formData.get("limitation");
+        const limitationDate = new Date(rawLimitation);
+        const isoLimitation = limitationDate.toISOString(); // "2025-05-23T17:18:52.374Z"
+
+        const pass = {
+            name: formData.get("name"),
+            passType: formData.get("passType"),
+            limitation: isoLimitation,
+            kindPassType: formData.get("kindPassType"),
+            addressId: parseInt(formData.get("addressId")),
+            code: parseInt(formData.get("code")) || 0
+        };
+
+        try {
+            const res = await fetch("http://localhost:8081/passes", {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(pass)
+            });
+
+            if (!res.ok) throw new Error("Ошибка при создании пропуска");
+
+            bootstrap.Modal.getInstance(document.getElementById("createPassModal")).hide();
+            e.target.reset();
+            document.getElementById("codeField").value = "";
+            alert("Пропуск успешно создан!");
+
+        } catch (err) {
+            console.error("Ошибка при отправке пропуска:", err);
+            alert("Ошибка при создании пропуска.");
+        }
+    };
 </script>
 </body>
 </html>

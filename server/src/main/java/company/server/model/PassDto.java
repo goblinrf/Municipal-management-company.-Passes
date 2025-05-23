@@ -40,4 +40,5 @@ public class PassDto {
         this.kindPassType = kindPassType;
         this.code = 0L;
     }
+    public PassDto() {}
 }

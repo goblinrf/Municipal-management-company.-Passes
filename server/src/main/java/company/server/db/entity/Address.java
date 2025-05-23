@@ -1,5 +1,6 @@
 package company.server.db.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -18,5 +19,6 @@ public class Address extends BaseEntity {
     private String entrance;
 
     @OneToMany(mappedBy = "address", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Pass> passes = new ArrayList<>();
 }

@@ -1,5 +1,6 @@
 package company.server.model;
 
+import company.server.db.entity.Address;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,5 +13,9 @@ public class AddressDto {
     public AddressDto(String address, String entrance) {
         this.street = address;
         this.entrance = entrance;
+    }
+
+    public AddressDto() {
+
     }
 }
