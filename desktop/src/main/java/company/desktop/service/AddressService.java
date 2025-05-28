@@ -64,7 +64,7 @@ public class AddressService {
             conn.setRequestMethod("PUT");
             conn.setDoOutput(true);
             conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Cookie", sessionCookie);  // ← ОБЯЗАТЕЛЬНО
+            conn.setRequestProperty("Cookie", sessionCookie);
 
             try (OutputStream os = conn.getOutputStream()) {
                 mapper.writeValue(os, address);

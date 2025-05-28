@@ -8,8 +8,11 @@ import company.server.model.PassDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class PassFacade {
@@ -21,7 +24,29 @@ public class PassFacade {
         this.passRepository = passRepository;
         this.addressRepository = addressRepository;
     }
+    public Pass extend(Long id, Map<String, Object> fields) {
+        Pass pass = passRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Пропуск не найден"));
 
+        if (fields.containsKey("limitation")) {
+            pass.setLimitation(LocalDate.parse((String) fields.get("limitation")));
+        }
+
+        // Генерация нового кода, если он не передан
+        if (!fields.containsKey("code") || fields.get("code") == null) {
+            pass.setCode(generateCode());
+        }
+        else {
+            pass.setCode(Long.parseLong((String) fields.get("code")));
+        }
+
+        return passRepository.save(pass);
+    }
+
+    private Long generateCode() {
+        Random random = new Random();
+        return 100_000L + random.nextInt(900_000); // Генерация 6-значного кода
+    }
     public List<Pass> getAll() {
         return passRepository.findAll();
     }

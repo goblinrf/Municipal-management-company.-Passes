@@ -19,6 +19,7 @@
         <module>server</module>
         <module>web</module>
         <module>desktop</module>
+        <module>bot</module>
     </modules>
 
     <properties>
