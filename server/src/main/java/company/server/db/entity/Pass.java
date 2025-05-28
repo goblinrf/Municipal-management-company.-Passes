@@ -3,7 +3,8 @@ package company.server.db.entity;
 import company.server.model.enums.KindPassType;
 import company.server.model.enums.PassType;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +15,7 @@ public class Pass extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PassType passType;
 
-    private LocalDateTime limitation;
+    private LocalDate limitation;
 
     @Enumerated(EnumType.STRING)
     private KindPassType kindPassType;

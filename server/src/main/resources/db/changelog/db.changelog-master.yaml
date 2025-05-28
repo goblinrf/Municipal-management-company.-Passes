@@ -47,7 +47,7 @@ databaseChangeLog:
                   type: BIGINT
               - column:
                   name: limitation
-                  type: TIMESTAMP
+                  type: DATE
               - column:
                   name: pass_type
                   type: VARCHAR(255)

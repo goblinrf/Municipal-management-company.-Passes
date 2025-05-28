@@ -21,7 +21,6 @@ public class AddressService {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Cookie", sessionCookie);  // ← ОБЯЗАТЕЛЬНО
-            System.out.println(sessionCookie);
             int code = conn.getResponseCode();
             if (code == 200) {
                 try (InputStream is = conn.getInputStream()) {

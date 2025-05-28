@@ -1,8 +1,12 @@
 package company.server.controller;
 
 import company.server.db.entity.Address;
+import company.server.db.entity.Pass;
 import company.server.db.facade.AddressFacade;
+
+import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import company.server.model.AddressDto;
@@ -50,7 +54,7 @@ public class AddressController {
         address.setStreet(addressDto.getStreet());
         address.setEntrance(addressDto.getEntrance());
         addressFacade.save(address);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Пользователь создан");
+        return ResponseEntity.status(HttpStatus.CREATED).body("Адрес создан");
     }
 
     @DeleteMapping("/{id}")

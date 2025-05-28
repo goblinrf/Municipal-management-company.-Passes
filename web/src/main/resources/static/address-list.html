@@ -83,7 +83,7 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Действителен до</label>
-                    <input type="datetime-local" class="form-control" name="limitation" required>
+                    <input type="date" class="form-control" name="limitation" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Вид</label>
@@ -156,45 +156,49 @@
         }
     };
 
-    document.getElementById("createPassForm").onsubmit = async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
+   document.getElementById("createPassForm").onsubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
 
-        const rawLimitation = formData.get("limitation");
-        const limitationDate = new Date(rawLimitation);
-        const isoLimitation = limitationDate.toISOString(); // "2025-05-23T17:18:52.374Z"
+    const rawLimitation = formData.get("limitation");
+    const limitationDate = new Date(rawLimitation);
+    const yyyy = limitationDate.getFullYear();
+    const mm = String(limitationDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(limitationDate.getDate()).padStart(2, '0');
+    const formattedDate = `${yyyy}-${mm}-${dd}`; // Вот так ожидает LocalDate
 
-        const pass = {
-            name: formData.get("name"),
-            passType: formData.get("passType"),
-            limitation: isoLimitation,
-            kindPassType: formData.get("kindPassType"),
-            addressId: parseInt(formData.get("addressId")),
-            code: parseInt(formData.get("code")) || 0
-        };
-
-        try {
-            const res = await fetch("http://localhost:8081/passes", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(pass)
-            });
-
-            if (!res.ok) throw new Error("Ошибка при создании пропуска");
-
-            bootstrap.Modal.getInstance(document.getElementById("createPassModal")).hide();
-            e.target.reset();
-            document.getElementById("codeField").value = "";
-            alert("Пропуск успешно создан!");
-
-        } catch (err) {
-            console.error("Ошибка при отправке пропуска:", err);
-            alert("Ошибка при создании пропуска.");
-        }
+    const pass = {
+        name: formData.get("name"),
+        passType: formData.get("passType"),
+        limitation: formattedDate,
+        kindPassType: formData.get("kindPassType"),
+        addressId: parseInt(formData.get("addressId")),
+        code: parseInt(formData.get("code")) || 0
     };
+
+console.log("rawLimitation =", formData.get("limitation"));
+    try {
+        const res = await fetch("http://localhost:8081/api/passes", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(pass)
+        });
+
+        if (!res.ok) throw new Error("Ошибка при создании пропуска");
+
+        bootstrap.Modal.getInstance(document.getElementById("createPassModal")).hide();
+        e.target.reset();
+        document.getElementById("codeField").value = "";
+        alert("Пропуск успешно создан!");
+
+    } catch (err) {
+        console.error("Ошибка при отправке пропуска:", err);
+        alert("Ошибка при создании пропуска.");
+    }
+};
 </script>
 </body>
 </html>
