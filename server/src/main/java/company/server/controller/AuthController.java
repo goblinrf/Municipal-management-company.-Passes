@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,10 +28,12 @@ public class AuthController {
         Optional<Users> user = userRepository.findByName(userDto.username());
         System.out.println(userDto.rawPassword()+userDto.username());
         if (user.isEmpty() || !passwordEncoder.matches(userDto.rawPassword(), user.get().getPassword())) {
+            log.warn("Ошибка входа: пользователь '{}' ввёл неверные данные", userDto.username());
             return ResponseEntity.status(401).body("Неверный логин или пароль");
         }
 
         session.setAttribute("user", userDto.username());
+        log.info("Успешный вход пользователя '{}'", userDto.username());
         return ResponseEntity.ok("Успешный вход");
     }
 
@@ -40,11 +44,16 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> currentUser(HttpSession session) {
-        String username = (String) session.getAttribute("user");
-        if (username == null) {
+    public ResponseEntity<?> currentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
             return ResponseEntity.status(401).body("Не авторизован");
         }
+
+        String username = authentication.getName();
+        log.info("Сессия продолжается для пользователя '{}'", username);
         return ResponseEntity.ok(username);
     }
 
