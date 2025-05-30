@@ -20,7 +20,7 @@ public class AddressService {
             URL url = new URL(BASE_URL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
-            conn.setRequestProperty("Cookie", sessionCookie);  // ← ОБЯЗАТЕЛЬНО
+            conn.setRequestProperty("Cookie", sessionCookie);
             int code = conn.getResponseCode();
             if (code == 200) {
                 try (InputStream is = conn.getInputStream()) {
@@ -93,5 +93,20 @@ public class AddressService {
         } catch (Exception e) {
             throw new RuntimeException("Ошибка удаления адреса: " + e.getMessage(), e);
         }
+    }
+    public static Address fetchAddressById(Long id, String sessionCookie) {
+        try {
+            URL url = new URL(BASE_URL + id);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Cookie", sessionCookie);
+            if (conn.getResponseCode() == 200) {
+                ObjectMapper mapper = new ObjectMapper();
+                return mapper.readValue(conn.getInputStream(), Address.class);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

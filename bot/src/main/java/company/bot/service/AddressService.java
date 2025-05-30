@@ -2,7 +2,6 @@ package company.bot.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import company.bot.models.Address;
-
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;

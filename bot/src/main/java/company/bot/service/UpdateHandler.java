@@ -77,18 +77,18 @@ public class UpdateHandler {
                 case WAITING_CODE:
                     String code = text;
 
-                        // Попытка продлить пропуск
-                        try {
-                            if (!code.matches("\\d{6}")) {
-                                code = null;
-                            }
-                            PassService.extendPass(SessionManager.getSession(chatId), state.passId, state.newValidUntil,code);
-                            bot.execute(new SendMessage(chatId, "✅ Пропуск успешно продлён!"));
-                        } catch (Exception e) {
-                            bot.execute(new SendMessage(chatId, "❌ Ошибка при продлении. Проверьте данные и попробуйте снова."));
+                    // Попытка продлить пропуск
+                    try {
+                        if (!code.matches("\\d{6}")) {
+                            code = null;
                         }
-                        extendStates.remove(chatId);
-                        showPasses(chatId);
+                        PassService.extendPass(SessionManager.getSession(chatId), state.passId, state.newValidUntil,code);
+                        bot.execute(new SendMessage(chatId, "✅ Пропуск успешно продлён!"));
+                    } catch (Exception e) {
+                        bot.execute(new SendMessage(chatId, "❌ Ошибка при продлении. Проверьте данные и попробуйте снова."));
+                    }
+                    extendStates.remove(chatId);
+                    showPasses(chatId);
 
                     return;
 

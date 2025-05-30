@@ -4,7 +4,6 @@ import company.server.db.entity.Address;
 import company.server.db.jpaRepository.AddressRepository;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,6 +21,7 @@ public class AddressFacade {
     public Address save(Address address) {
         return repository.save(address);
     }
+
     public Optional<Address> findById(Long id) {
         return repository.findById(id);
     }

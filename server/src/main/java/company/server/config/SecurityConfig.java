@@ -2,6 +2,7 @@ package company.server.config;
 
 import company.server.service.CustomUserDetailsService;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,8 +15,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
 @Configuration
 public class SecurityConfig {
 
@@ -27,17 +26,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ CORS настройка по-новому
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ CORS настройка по-новому
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/logout","/api/auth/me").permitAll()
-                        .requestMatchers("/login", "/logout").permitAll()
-                        .requestMatchers("/api/**").authenticated()
-                        .anyRequest().permitAll()
-                )
-                .formLogin(form -> form
-                        .loginProcessingUrl("/login")
+                .authorizeHttpRequests(
+                        auth -> auth.requestMatchers("/api/auth/login", "/api/auth/logout", "/api/auth/me")
+                                .permitAll()
+                                .requestMatchers("/login", "/logout")
+                                .permitAll()
+                                .requestMatchers("/api/**")
+                                .authenticated()
+                                .anyRequest()
+                                .permitAll())
+                .formLogin(form -> form.loginProcessingUrl("/login")
                         .usernameParameter("username")
                         .passwordParameter("password")
                         .successHandler((request, response, authentication) -> {
@@ -46,20 +46,16 @@ public class SecurityConfig {
                         .failureHandler((request, response, exception) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         })
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
+                        .permitAll())
+                .logout(logout -> logout.logoutUrl("/logout")
                         .logoutSuccessHandler((request, response, authentication) -> {
                             response.setStatus(HttpServletResponse.SC_OK);
                         })
-                        .permitAll()
-                )
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint((request, response, authException) -> {
+                        .permitAll())
+                .exceptionHandling(
+                        exception -> exception.authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        })
-                );
+                        }));
 
         return http.build();
     }

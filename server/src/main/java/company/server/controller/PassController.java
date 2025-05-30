@@ -1,16 +1,14 @@
 package company.server.controller;
 
-import company.server.db.entity.Address;
 import company.server.db.entity.Pass;
 import company.server.db.facade.PassFacade;
 import company.server.model.PassDto;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/passes")
@@ -26,8 +24,11 @@ public class PassController {
     public List<Pass> getAll() {
         return facade.getAll();
     }
+
     @GetMapping("/{id}")
-    public Optional<Pass> getPassById(@PathVariable Long id) {return facade.findById(id);}
+    public Optional<Pass> getPassById(@PathVariable Long id) {
+        return facade.findById(id);
+    }
 
     @PostMapping
     public Pass create(@RequestBody PassDto passDto) {
@@ -48,6 +49,7 @@ public class PassController {
     public void delete(@PathVariable Long id) {
         facade.delete(id);
     }
+
     @PutMapping("/{id}/extend")
     public ResponseEntity<?> extend(@PathVariable Long id, @RequestBody Map<String, Object> fields) {
         try {

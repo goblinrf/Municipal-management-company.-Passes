@@ -15,5 +15,6 @@ public class Address {
         this.street = street;
         this.entrance = entrance;
     }
-    public Address(){}
+
+    public Address() {}
 }

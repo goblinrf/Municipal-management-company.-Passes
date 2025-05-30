@@ -2,7 +2,6 @@ package company.server.model;
 
 import company.server.model.enums.KindPassType;
 import company.server.model.enums.PassType;
-
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,5 +40,6 @@ public class PassDto {
         this.kindPassType = kindPassType;
         this.code = 0L;
     }
+
     public PassDto() {}
 }

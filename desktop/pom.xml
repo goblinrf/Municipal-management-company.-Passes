@@ -54,23 +54,14 @@
 
     <build>
         <plugins>
-            <!-- Плагин для компиляции Java-кода -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <release>23</release>
-                </configuration>
             </plugin>
-
-            <!-- Плагин для запуска main-класса -->
+            <!-- To build OCI image: https://docs.spring.io/spring-boot/maven-plugin/build-image.html -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <mainClass>company.client.App</mainClass>
-                </configuration>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

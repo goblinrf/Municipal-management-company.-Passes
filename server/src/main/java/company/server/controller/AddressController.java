@@ -1,15 +1,10 @@
 package company.server.controller;
 
 import company.server.db.entity.Address;
-import company.server.db.entity.Pass;
 import company.server.db.facade.AddressFacade;
-
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import company.server.model.AddressDto;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +25,9 @@ public class AddressController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Address> getAddressById(@PathVariable Long id) {return addressFacade.findById(id);}
+    public Optional<Address> getAddressById(@PathVariable Long id) {
+        return addressFacade.findById(id);
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody AddressDto addressDto) {
@@ -47,9 +44,8 @@ public class AddressController {
         return ResponseEntity.ok("Адрес обновлён");
     }
 
-
     @PostMapping
-    public  ResponseEntity<?> create(@RequestBody AddressDto addressDto) {
+    public ResponseEntity<?> create(@RequestBody AddressDto addressDto) {
         Address address = new Address();
         address.setStreet(addressDto.getStreet());
         address.setEntrance(addressDto.getEntrance());

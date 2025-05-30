@@ -4,9 +4,7 @@ import company.desktop.frontend.MainFrame;
 import company.desktop.model.LoginResponse;
 import company.desktop.service.AuthService;
 
-
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 

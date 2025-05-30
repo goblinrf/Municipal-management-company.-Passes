@@ -3,7 +3,6 @@ package company.bot.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import company.bot.models.Pass;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -17,10 +16,12 @@ import java.util.Map;
 public class PassService {
     private static final String BASE_URL = "http://localhost:8081/api/passes";
     private static final ObjectMapper mapper = new ObjectMapper();
+
     static {
         // Поддержка LocalDateTime
         mapper.registerModule(new JavaTimeModule());
     }
+
     public static List<Pass> getAllPasses(String sessionCookie) {
         try {
             URL url = new URL(BASE_URL);
@@ -40,6 +41,7 @@ public class PassService {
             throw new RuntimeException("Ошибка загрузки пропусков: " + e.getMessage(), e);
         }
     }
+
     public static Pass getPassById(Long id, String sessionCookie) {
         try {
             URL url = new URL(BASE_URL + "/" + id);
@@ -59,6 +61,7 @@ public class PassService {
             throw new RuntimeException("Ошибка загрузки пропуска: " + e.getMessage(), e);
         }
     }
+
     public static void extendPass(String sessionCookie, Long id, LocalDate limitation, String code) {
         try {
             URL url = new URL(BASE_URL + "/" + id + "/extend");
@@ -88,6 +91,4 @@ public class PassService {
             throw new RuntimeException("Ошибка продления пропуска: " + e.getMessage(), e);
         }
     }
-
-
 }
