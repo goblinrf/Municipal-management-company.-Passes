@@ -5,17 +5,18 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.*;
 import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.request.EditMessageReplyMarkup;
-
-import company.bot.models.Address;
 import company.bot.models.Pass;
 import company.bot.session.SessionManager;
 import company.bot.strategy.Context;
+import company.bot.strategy.impl.StrategyDeactivated;
 import company.bot.strategy.impl.StrategyEnded;
 import company.bot.strategy.impl.StrategyNotEnded;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class UpdateHandler {
     private final TelegramBot bot;
@@ -62,7 +63,6 @@ public class UpdateHandler {
             ExtendPassState state = extendStates.get(chatId);
             switch (state.stage) {
                 case WAITING_DATE:
-                    // Попытка распарсить дату
                     try {
                         LocalDate date = LocalDate.parse(text);
                         state.newValidUntil = date;
@@ -82,7 +82,7 @@ public class UpdateHandler {
                         if (!code.matches("\\d{6}")) {
                             code = null;
                         }
-                        PassService.extendPass(SessionManager.getSession(chatId), state.passId, state.newValidUntil,code);
+                        PassService.extendPass(SessionManager.getSession(chatId), state.passId, state.newValidUntil, code);
                         bot.execute(new SendMessage(chatId, "✅ Пропуск успешно продлён!"));
                     } catch (Exception e) {
                         bot.execute(new SendMessage(chatId, "❌ Ошибка при продлении. Проверьте данные и попробуйте снова."));
@@ -183,6 +183,18 @@ public class UpdateHandler {
 
         if (data.startsWith("extend_pass:")) {
             long passId = Long.parseLong(data.substring("extend_pass:".length()));
+
+            Pass pass = PassService.getPassById(passId, SessionManager.getSession(chatId));
+            if (pass == null) {
+                bot.execute(new SendMessage(chatId, "Пропуск не найден."));
+                return;
+            }
+
+            if (pass.isExpired() == -1) {
+                bot.execute(new SendMessage(chatId, "❌ Этот пропуск деактивирован и не может быть продлён."));
+                return;
+            }
+
             ExtendPassState state = new ExtendPassState();
             state.passId = passId;
             state.stage = ExtendStage.WAITING_DATE;
@@ -198,15 +210,18 @@ public class UpdateHandler {
         sb.append("ID: ").append(pass.getId()).append("\n");
         sb.append("Название: ").append(pass.getName()).append("\n");
         sb.append("Действителен до: ").append(pass.getLimitation()).append("\n");
-        sb.append("Статус: ").append(pass.isExpired() ? "Истёк" : "Активен").append("\n");
+        sb.append("Статус: ").append(getStatusText(pass)).append("\n");
         sb.append("Адрес: ").append(address).append("\n");
 
-        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup(
-                new InlineKeyboardButton[]{
-                        new InlineKeyboardButton("⬅️ Назад").callbackData("back_to_passes"),
-                        new InlineKeyboardButton("🔄 Продлить").callbackData("extend_pass:" + pass.getId())
-                }
-        );
+        List<InlineKeyboardButton> buttons = new ArrayList<>();
+        buttons.add(new InlineKeyboardButton("⬅️ Назад").callbackData("back_to_passes"));
+
+        // Добавляем кнопку "Продлить" только если пропуск не деактивирован
+        if (pass.isExpired() != -1) {
+            buttons.add(new InlineKeyboardButton("🔄 Продлить").callbackData("extend_pass:" + pass.getId()));
+        }
+
+        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup(buttons.toArray(new InlineKeyboardButton[0]));
 
         bot.execute(new SendMessage(chatId, sb.toString()).replyMarkup(keyboard));
     }
@@ -217,14 +232,8 @@ public class UpdateHandler {
 
         List<InlineKeyboardButton[]> rows = new ArrayList<>();
         for (Pass pass : passes) {
-            Context context = new Context();
-            if (pass.isExpired()) {
-                context.setStrategy(new StrategyEnded());
-            } else {
-                context.setStrategy(new StrategyNotEnded());
-            }
+            String status = getStatusText(pass);
 
-            String status = context.showMessage(List.of(pass));
             String textBtn = pass.getId() + " | " + pass.getName() + " | " + status;
             InlineKeyboardButton button = new InlineKeyboardButton(textBtn)
                     .callbackData("pass:" + pass.getId());
@@ -258,5 +267,17 @@ public class UpdateHandler {
 
     private ReplyKeyboardRemove removeKeyboard() {
         return new ReplyKeyboardRemove();
+    }
+
+    private String getStatusText(Pass pass) {
+        Context context = new Context();
+        if (pass.isExpired() == -1) {
+            context.setStrategy(new StrategyDeactivated());
+        } else if (pass.isExpired() == 1) {
+            context.setStrategy(new StrategyEnded());
+        } else {
+            context.setStrategy(new StrategyNotEnded());
+        }
+        return context.showMessage(List.of(pass));
     }
 }

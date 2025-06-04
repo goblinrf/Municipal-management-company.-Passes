@@ -44,7 +44,15 @@ public class PassController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
-
+    @PutMapping("/deactivate")
+    public ResponseEntity<?> deactivateMultiple(@RequestBody List<Long> ids) {
+        try {
+            List<Pass> deactivated = facade.deactivateMultiple(ids);
+            return ResponseEntity.ok(deactivated);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
+    }
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         facade.delete(id);

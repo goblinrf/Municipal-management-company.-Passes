@@ -6,13 +6,17 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import company.desktop.model.PassForReport;
 
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PassService {
 
@@ -105,7 +109,27 @@ public class PassService {
             throw new RuntimeException("Ошибка обновления пропуска: " + e.getMessage(), e);
         }
     }
+    public static void deactivatePasses(List<Long> ids, String sessionCookie) {
+        try {
+            URL url = new URL(BASE_URL + "/deactivate");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("PUT");
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Cookie", sessionCookie);
 
+            try (OutputStream os = conn.getOutputStream()) {
+                mapper.writeValue(os, ids);
+            }
+
+            int code = conn.getResponseCode();
+            if (code != 200) {
+                throw new RuntimeException("Ошибка деактивации: HTTP " + code);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка деактивации пропусков: " + e.getMessage(), e);
+        }
+    }
     public static void deletePass(Long id, String sessionCookie) {
         try {
             URL url = new URL(BASE_URL + "/" + id);
@@ -119,6 +143,28 @@ public class PassService {
             }
         } catch (Exception e) {
             throw new RuntimeException("Ошибка удаления пропуска: " + e.getMessage(), e);
+        }
+    }
+    public static Long generateCode() {
+        return Long.valueOf((int) (100000 + Math.random() * 900000));
+    }
+    public static void extendPass(Long id, Map<String, Object> data, String token) {
+        try {
+            URL url = new URL(BASE_URL + "/" + id + "/extend");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("PUT");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Cookie", token);
+            conn.setDoOutput(true);
+            try (OutputStream os = conn.getOutputStream()) {
+                mapper.writeValue(os, data);
+            }
+            int status = conn.getResponseCode();
+            if (status != 200) {
+                throw new RuntimeException("Ошибка продления: HTTP " + status);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Ошибка продления пропуска", e);
         }
     }
 }

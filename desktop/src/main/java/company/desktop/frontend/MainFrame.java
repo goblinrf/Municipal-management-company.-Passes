@@ -1,8 +1,6 @@
 package company.desktop.frontend;
 
 import company.desktop.LoginFrame;
-import company.desktop.frontend.AddressPanel;
-import company.desktop.frontend.PassPanel;
 
 import javax.swing.*;
 import java.awt.*;

@@ -5,11 +5,13 @@ import company.server.db.entity.Pass;
 import company.server.db.jpaRepository.AddressRepository;
 import company.server.db.jpaRepository.PassRepository;
 import company.server.model.PassDto;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +39,7 @@ public class PassFacade {
         } else {
             pass.setCode(Long.parseLong((String) fields.get("code")));
         }
-
+        pass.setCount_update(pass.getCount_update()+1L);
         return passRepository.save(pass);
     }
 
@@ -68,6 +70,7 @@ public class PassFacade {
         pass.setKindPassType(dto.getKindPassType());
         pass.setName(dto.getName());
         pass.setCode(dto.getCode());
+        pass.setCount_update(0);
 
         return passRepository.save(pass);
     }
@@ -92,7 +95,19 @@ public class PassFacade {
 
         return passRepository.save(existing);
     }
+    @Transactional
+    public List<Pass> deactivateMultiple(List<Long> ids) {
+        List<Pass> passes = passRepository.findAllById(ids);
+        if (passes.isEmpty()) {
+            throw new IllegalArgumentException("Пропуски не найдены");
+        }
 
+        for (Pass pass : passes) {
+            pass.setCount_update(-1);
+        }
+
+        return passRepository.saveAll(passes);
+    }
     public void delete(Long id) {
         passRepository.deleteById(id);
     }

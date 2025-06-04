@@ -12,11 +12,16 @@ public class AddressPanel extends JPanel {
     private final DefaultTableModel model;
     private final String token;
     private final JTable table;
+    private  JButton refreshBtn;
 
     public AddressPanel(String token) {
         this.token = token;
         setLayout(new BorderLayout());
-
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        refreshBtn = new JButton("Обновить");
+        refreshBtn.addActionListener(e -> loadAddresses());
+        topPanel.add(refreshBtn);
+        add(topPanel, BorderLayout.BEFORE_FIRST_LINE);
         // Добавлена колонка "ID" в начало
         model = new DefaultTableModel(new Object[]{"ID", "Улица", "Подъезд", "Действия", "OBJ"}, 0);
         table = new JTable(model) {

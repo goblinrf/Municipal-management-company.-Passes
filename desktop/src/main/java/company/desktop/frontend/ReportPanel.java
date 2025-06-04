@@ -75,9 +75,7 @@ public class ReportPanel extends JPanel {
             Map<Long, Address> addressCache = new HashMap<>();
             for (List<PassForReport> list : grouped.values()) {
                 for (PassForReport pass : list) {
-                    System.out.println(pass.address());
                     Long addrId = pass.address().id();
-                    System.out.println(pass.address().id());
                     if (addrId != null && !addressCache.containsKey(addrId)) {
                         Address addr = AddressService.fetchAddressById(addrId, sessionCookie);
                         if (addr != null) {
@@ -92,7 +90,7 @@ public class ReportPanel extends JPanel {
             if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
 
             String path = chooser.getSelectedFile().getAbsolutePath();
-            ReportService.createPdfReport(grouped, addressCache, path);
+            ReportService.createPdfReport(grouped, addressCache, path,sessionCookie);
 
             JOptionPane.showMessageDialog(this, "PDF-отчёт сохранён: " + path);
         } catch (Exception ex) {

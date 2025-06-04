@@ -11,6 +11,7 @@ public class Pass {
     private String name;
     private LocalDate limitation;
     private Address address;
+    private Long count_update;
 
     public Pass() {}
 
@@ -21,7 +22,10 @@ public class Pass {
         this.address = address;
     }
 
-    public boolean isExpired() {
-        return LocalDate.now().isAfter(limitation);
+    public int isExpired() {
+        if (count_update == -1) {
+            return -1;
+        }
+        return !LocalDate.now().isAfter(limitation)?0:1;
     }
 }
