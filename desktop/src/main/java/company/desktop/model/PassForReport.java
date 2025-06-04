@@ -12,7 +12,8 @@ public record PassForReport(
         KindPassType kindPassType,
         Long code,
         LocalDate limitation,
-        Address address
+        Address address,
+        Long count_update
 ) {
     public boolean isActive() {
         return !LocalDate.now().isAfter(limitation);

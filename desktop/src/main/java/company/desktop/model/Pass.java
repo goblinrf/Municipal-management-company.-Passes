@@ -15,9 +15,14 @@ public record Pass(
         KindPassType kindPassType,
         Long code,
         LocalDate limitation,
-        Long addressId
+        Long addressId,
+        Long count_update
 ) {
-    public boolean isActive() {
-        return !LocalDate.now().isAfter(limitation);
+    public int isActive() {
+        if (count_update == -1) {
+            return -1;
+        }
+
+        return !LocalDate.now().isAfter(limitation)?0:1;
     }
 }

@@ -26,4 +26,6 @@ public class Pass extends BaseEntity {
     private Address address;
 
     private long code;
+
+    private long count_update;
 }

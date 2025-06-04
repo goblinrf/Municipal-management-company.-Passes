@@ -54,6 +54,9 @@ databaseChangeLog:
               - column:
                   name: kind_pass_type
                   type: VARCHAR(255)
+              - column:
+                  name: count_update
+                  type: BIGINT
 
   - changeSet:
       id: 3
